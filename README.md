@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://inkwave-aah.pages.dev"><b>▶ Play now</b></a> ·
   <a href="#controls">Controls</a> ·
+  <a href="#playing-online">Online</a> ·
   <a href="#running-locally">Run locally</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
@@ -29,6 +30,7 @@
 ## Features
 
 - **Turf war, 4 v 4.** Three minutes, most ground painted wins. Play against bots on three difficulty levels.
+- **Online with friends.** Create a private room, share the five-character code, and up to eight players line up in the lobby with their loadouts and looks. Empty slots fill with bots; if someone drops, a bot takes over their squidkid mid-match.
 - **Squid form.** Hold to dive into your ink: swim fast, refill your tank, climb inked walls, dolphin-jump water gaps.
 - **Seven weapons**, each with its own feel: Spritzer (shooter), Swell Roller, Glint Charger, Popper Blaster, Twinfin Dualies (dodge roll), Tidebucket Slosher and Gyre Splatling. Every kit comes with Splat Bombs and a special.
 - **Three stages, day or dusk.** Tidewater Plaza, Kelpline Terminal and Halyard Marina, a working marina with a car ferry moored across the middle where the water gaps are the whole point.
@@ -58,6 +60,26 @@
 
 Gamepads work on the hosted (https) version. On a plain `http://` LAN address browsers block the Gamepad API.
 
+## Playing online
+
+From the main menu choose **Online**, then **Create a room** and send your friends the code (or **Join a room** and
+type theirs). The host picks the stage, time of day, match length and whether bots fill empty slots; everyone else
+picks a team, weapon and look and readies up. The lineup, emotes and ready state are live for everyone in the room.
+
+Rooms run on a tiny relay (a Cloudflare Worker with one Durable Object per room, in [`server/`](server)). It only
+forwards messages: every player simulates their own squidkid and streams it, and everyone else draws it through the
+same animation system on a smoothed timeline about a tenth of a second behind. How that works, and the tools used to
+measure it, are in [`docs/NET.md`](docs/NET.md).
+
+To play online on your own network, run the relay next to the game:
+
+```bash
+npm install      # once: the relay runs on wrangler
+npm run relay    # ws://<this machine>:8787
+```
+
+A page opened from `localhost` or a LAN address uses that relay automatically; `?relay=wss://…` points it anywhere else.
+
 ## Running locally
 
 There is no build step. Any static file server works; the included one also serves to your LAN and sends no-cache headers so module updates are never stale.
@@ -76,6 +98,9 @@ npm run check    # syntax-check every module
 npm run smoke    # boot + 8 s of autopilot in headless Chrome, fails on console errors
 npm run build    # assemble dist/ (game + only the three.js addons it imports)
 ```
+
+With the relay running, `npm run net-test` plays a real match between headless clients and reports what each
+screen drew (see [`docs/NET.md`](docs/NET.md#how-the-netcode-works-srcnetnetmatchjs)).
 
 ## How it works
 

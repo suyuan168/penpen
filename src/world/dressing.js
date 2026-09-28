@@ -2,6 +2,7 @@
 // by the map's 180° rotation (x,z → -x,-z, rotY + π) exactly like the level blocks, so both sides stay identical.
 // Only `mirror: false` items are placed once.
 import { HALYARD_VESSELS } from './props-marina-vessels.js';
+import { STAGES } from './stages/index.js';
 
 const P = Math.PI;
 
@@ -276,6 +277,7 @@ export const DRESSING = {
 
 // stage packs that own their own placement lists
 const EXTRA = { halyard: HALYARD_VESSELS };
+for (const [id, st] of Object.entries(STAGES)) if (st.PLACEMENTS) EXTRA[id] = st.PLACEMENTS;
 
 // Expand the half-list into world placements for both halves.
 export function dressingFor(layoutId) {
